@@ -77,10 +77,42 @@ Config is baked in at compile time via `--dart-define-from-file` and read only i
 | prod | `env/prod.json` | Supabase Cloud |
 
 - `env/dev.json` and `env/prod.json` are gitignored; only `env/example.json` (placeholders) is tracked. Copy `env/example.json` to `env/dev.json` / `env/prod.json` and fill the values.
-- Values come from `npx supabase status` (local, after card 0.3) and Supabase dashboard → Project Settings → API (prod, after card 0.4).
+- Values come from `npx supabase status -o env` (local, see [Local backend](#local-backend-supabase)) and Supabase dashboard → Project Settings → API (prod, after card 0.4).
 - The placeholder `env/prod.json` builds but does not work — never deploy it before card 0.4 fills real values.
 - Only the public anon key goes here. Service role, TMDB and VAPID private keys never.
 - Running without defines does not crash; in debug mode a warning names the missing keys.
+
+## Local backend (Supabase)
+
+The backend runs locally in Docker via the Supabase CLI (pinned in `package.json`).
+
+**Prerequisites:** Docker Desktop running (Windows: WSL 2 backend), Node 18+. Run `npm install` once in the repo root.
+
+**First start:** `npx supabase start`. The first run pulls several GB of images and can take much longer than 10 minutes on a slow network; later starts take about a minute.
+
+**Keys into the app:** run `npx supabase status -o env`, then in `env/dev.json` (copy of `env/example.json`) set `SUPABASE_URL` to `API_URL` and `SUPABASE_ANON_KEY` to `ANON_KEY`. Then `flutter run -d chrome --dart-define-from-file=env/dev.json`.
+
+| Service | URL |
+|---|---|
+| API | http://127.0.0.1:54321 |
+| Postgres | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
+| Studio | http://localhost:54323 |
+| Mailpit (formerly Inbucket) | http://localhost:54324 — all auth emails land here |
+
+**Daily commands:**
+
+```bash
+npx supabase start | stop | status
+npx supabase db reset              # re-apply all migrations + supabase/seed.sql
+npx supabase test db               # pgTAP tests from supabase/tests/
+npx supabase migration new <name>  # new migration
+```
+
+**Rules:** the schema changes only through migrations (`supabase/migrations/`), never through Studio.
+
+**Troubleshooting:**
+- `Cannot connect to the Docker daemon` / `docker ... not running` — start Docker Desktop.
+- `ports are not available` on 54321–54327 — another process or another Supabase project holds the port: `npx supabase stop --all`, or find the process with `netstat -ano | findstr :54321`. On Windows also check Hyper-V excluded ranges: `netsh int ipv4 show excludedportrange protocol=tcp`.
 
 ## Lints
 
@@ -97,6 +129,8 @@ flutter test                                            # unit + widget tests
 flutter drive --driver=test_driver/integration_test.dart \
   --target=integration_test/app_smoke_test.dart -d chrome   # e2e (needs chromedriver on :4444)
 flutter build web --release --dart-define-from-file=env/prod.json   # production build
+npx supabase start                                      # local backend
+npx supabase db reset                                   # re-apply migrations + seed
 ```
 
 ## Contributing
