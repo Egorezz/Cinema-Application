@@ -1,11 +1,11 @@
 {
-    "name": "cinema_app",
-    "short_name": "cinema_app",
+    "name": "Дубль — онлайн-кинотеатр",
+    "short_name": "Дубль",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Онлайн-кинотеатр: фильмы и сериалы",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
