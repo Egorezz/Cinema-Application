@@ -1,5 +1,6 @@
 import 'package:cinema_app/app/router.dart';
 import 'package:cinema_app/core/l10n/strings.dart';
+import 'package:cinema_app/core/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,6 +46,8 @@ class _CinemaAppState extends State<CinemaApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: AppStrings.appTitle,
+      theme: AppTheme.light(),
+      themeMode: ThemeMode.light,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
     );
