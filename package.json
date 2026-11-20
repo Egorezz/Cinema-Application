@@ -1,0 +1,7 @@
+{
+  "name": "cinema_app",
+  "private": true,
+  "devDependencies": {
+    "supabase": "^3.2.0"
+  }
+}

@@ -57,6 +57,7 @@ env/*.json
 !env/example.json
 supabase/functions/.env
 supabase/.temp/
+node_modules/
 
 # AI task specs (docs/specs/*.md) are working instructions for Claude agents, not project docs
 docs/specs/

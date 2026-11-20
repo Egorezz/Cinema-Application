@@ -1,0 +1,2 @@
+-- Local dev seed, applied by `npx supabase db reset` after all migrations.
+-- Only open-licence media. Test users and titles are added by the cards that create their tables.
