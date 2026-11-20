@@ -1,0 +1,25 @@
+name: cinema_app
+description: "Online cinema web app (Flutter Web PWA + Supabase)."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  flutter_web_plugins:
+    sdk: flutter
+  go_router: ^18.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  very_good_analysis: ^11.0.0
+
+flutter:
+  uses-material-design: true
