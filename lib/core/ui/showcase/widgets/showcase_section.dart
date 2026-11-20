@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 
 /// Titled block of the ui-kit showcase.
 class ShowcaseSection extends StatelessWidget {
-  const ShowcaseSection({required this.title, required this.child, super.key});
+  const ShowcaseSection({
+    required this._title,
+    required this._child,
+    super.key,
+  });
 
-  final String title;
-  final Widget child;
+  final String _title;
+  final Widget _child;
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +19,9 @@ class ShowcaseSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: Theme.of(context).textTheme.headlineSmall),
+          Text(_title, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: AppSpacing.m),
-          child,
+          _child,
         ],
       ),
     );

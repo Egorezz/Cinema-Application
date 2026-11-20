@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class NotFoundPage extends StatelessWidget {
-  const NotFoundPage({required this.path, super.key});
+  const NotFoundPage({required this._path, super.key});
 
-  final String path;
+  final String _path;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ErrorView(
         title: AppStrings.notFoundTitle,
-        message: path,
+        message: _path,
         onRetry: () => context.go(AppRoutes.home),
         retryLabel: AppStrings.toHome,
       ),

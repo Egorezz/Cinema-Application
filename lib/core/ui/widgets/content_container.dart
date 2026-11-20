@@ -6,13 +6,13 @@ import 'package:flutter/widgets.dart';
 /// horizontal page padding of the current [ScreenSize].
 class ContentContainer extends StatelessWidget {
   const ContentContainer({
-    required this.child,
+    required this._child,
     super.key,
-    this.maxWidth = 1440,
+    this._maxWidth = 1440,
   });
 
-  final Widget child;
-  final double maxWidth;
+  final Widget _child;
+  final double _maxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +25,10 @@ class ContentContainer extends StatelessWidget {
       alignment: Alignment.topCenter,
       heightFactor: 1,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
+        constraints: BoxConstraints(maxWidth: _maxWidth),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: child,
+          child: _child,
         ),
       ),
     );

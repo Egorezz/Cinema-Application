@@ -7,45 +7,45 @@ enum AppButtonVariant { primary, secondary, text }
 /// a [TextButton].
 class AppButton extends StatelessWidget {
   const AppButton({
-    required this.label,
-    required this.onPressed,
+    required this._label,
+    required this._onPressed,
     super.key,
-    this.variant = AppButtonVariant.primary,
-    this.icon,
-    this.isLoading = false,
-    this.expand = false,
+    this._variant = AppButtonVariant.primary,
+    this._icon,
+    this._isLoading = false,
+    this._expand = false,
   });
 
-  final String label;
+  final String _label;
 
   /// `null` disables the button.
-  final VoidCallback? onPressed;
-  final AppButtonVariant variant;
-  final IconData? icon;
+  final VoidCallback? _onPressed;
+  final AppButtonVariant _variant;
+  final IconData? _icon;
 
-  /// Shows a progress indicator instead of [icon] and disables the button.
-  final bool isLoading;
+  /// Shows a progress indicator instead of `icon` and disables the button.
+  final bool _isLoading;
 
   /// Stretches the button to the available width.
-  final bool expand;
+  final bool _expand;
 
   static const double _indicatorSize = 16;
 
   @override
   Widget build(BuildContext context) {
-    final effectiveOnPressed = isLoading ? null : onPressed;
-    final text = Text(label, maxLines: 1, overflow: TextOverflow.ellipsis);
-    final leading = isLoading
+    final effectiveOnPressed = _isLoading ? null : _onPressed;
+    final text = Text(_label, maxLines: 1, overflow: TextOverflow.ellipsis);
+    final leading = _isLoading
         ? const SizedBox.square(
             dimension: _indicatorSize,
             child: CircularProgressIndicator(strokeWidth: 2),
           )
-        : icon == null
+        : _icon == null
         ? null
-        : Icon(icon, size: 18);
+        : Icon(_icon, size: 18);
     // Framework .icon constructors lay out icon + label safely under both
     // bounded and unbounded width (AppBar actions, Row, dialog actions).
-    final button = switch ((variant, leading)) {
+    final button = switch ((_variant, leading)) {
       (AppButtonVariant.primary, null) => FilledButton(
         onPressed: effectiveOnPressed,
         child: text,
@@ -74,7 +74,7 @@ class AppButton extends StatelessWidget {
         label: text,
       ),
     };
-    if (!expand) return button;
+    if (!_expand) return button;
     return SizedBox(width: double.infinity, child: button);
   }
 }

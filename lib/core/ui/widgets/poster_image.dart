@@ -5,16 +5,15 @@ import 'package:flutter/material.dart';
 /// Network poster image: a skeleton while loading, [PosterPlaceholder] when
 /// the url is missing or fails to load.
 class PosterImage extends StatelessWidget {
-  const PosterImage({required this.imageUrl, super.key});
+  const PosterImage({required this._imageUrl, super.key});
 
-  final String? imageUrl;
+  final String? _imageUrl;
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = this.imageUrl;
-    if (imageUrl == null) return const PosterPlaceholder();
+    if (_imageUrl == null) return const PosterPlaceholder();
     return Image.network(
-      imageUrl,
+      _imageUrl,
       fit: BoxFit.cover,
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;

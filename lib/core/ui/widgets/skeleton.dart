@@ -7,14 +7,14 @@ import 'package:flutter/widgets.dart';
 class Skeleton extends StatefulWidget {
   const Skeleton({
     super.key,
-    this.width,
-    this.height,
-    this.borderRadius = AppSpacing.radiusS,
+    this._width,
+    this._height,
+    this._borderRadius = AppSpacing.radiusS,
   });
 
-  final double? width;
-  final double? height;
-  final double borderRadius;
+  final double? _width;
+  final double? _height;
+  final double _borderRadius;
 
   @override
   State<Skeleton> createState() => _SkeletonState();
@@ -54,11 +54,11 @@ class _SkeletonState extends State<Skeleton>
     return FadeTransition(
       opacity: _opacity,
       child: Container(
-        width: widget.width,
-        height: widget.height,
+        width: widget._width,
+        height: widget._height,
         decoration: BoxDecoration(
           color: AppColors.skeleton,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
+          borderRadius: BorderRadius.circular(widget._borderRadius),
         ),
       ),
     );
