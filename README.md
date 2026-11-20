@@ -67,6 +67,21 @@ Dependency direction: `presentation → domain ← data`.
 - Hosting must rewrite every path to `index.html` (SPA fallback), otherwise a direct URL or reload returns 404. Configured in card 0.6.
 - Filter and season state lives in query parameters; auth/admin guards are added via the router `redirect`.
 
+## Environments
+
+Config is baked in at compile time via `--dart-define-from-file` and read only in `lib/core/config/` (`EnvConfig`). Keys: `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
+
+| Env | File | Target |
+|---|---|---|
+| dev | `env/dev.json` | local Supabase `http://127.0.0.1:54321` |
+| prod | `env/prod.json` | Supabase Cloud |
+
+- `env/dev.json` and `env/prod.json` are gitignored; only `env/example.json` (placeholders) is tracked. Copy `env/example.json` to `env/dev.json` / `env/prod.json` and fill the values.
+- Values come from `npx supabase status` (local, after card 0.3) and Supabase dashboard → Project Settings → API (prod, after card 0.4).
+- The placeholder `env/prod.json` builds but does not work — never deploy it before card 0.4 fills real values.
+- Only the public anon key goes here. Service role, TMDB and VAPID private keys never.
+- Running without defines does not crash; in debug mode a warning names the missing keys.
+
 ## Lints
 
 `analysis_options.yaml` includes `package:very_good_analysis/analysis_options.yaml`. Generated files (`*.g.dart`, `*.freezed.dart`) and platform folders are excluded. Code must pass `flutter analyze` with no issues. Deviations from `very_good_analysis`: `public_member_api_docs` is off (app code, not a package) and `unnecessary_type_name_in_constructor` is off — constructors use the classic `const ClassName({super.key})` form, not the Dart 3.13 `const new(...)` form. All other Dart 3.13 features are fine to use.
@@ -75,13 +90,13 @@ Dependency direction: `presentation → domain ← data`.
 
 ```bash
 flutter pub get
-flutter run -d chrome                                   # dev (env config: --dart-define-from-file=env/dev.json from card 0.2)
+flutter run -d chrome --dart-define-from-file=env/dev.json   # dev
 flutter analyze
 dart format .
 flutter test                                            # unit + widget tests
 flutter drive --driver=test_driver/integration_test.dart \
   --target=integration_test/app_smoke_test.dart -d chrome   # e2e (needs chromedriver on :4444)
-flutter build web --release                             # production build
+flutter build web --release --dart-define-from-file=env/prod.json   # production build
 ```
 
 ## Contributing
