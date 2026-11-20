@@ -26,9 +26,8 @@ class HomePage extends StatelessWidget {
                       style: Theme.of(context).textTheme.headlineMedium,
                       textAlign: TextAlign.center,
                     ),
-                    AppButton(
+                    AppButton.text(
                       label: AppStrings.aboutLink,
-                      variant: AppButtonVariant.text,
                       onPressed: () => context.go(AppRoutes.about),
                     ),
                   ],

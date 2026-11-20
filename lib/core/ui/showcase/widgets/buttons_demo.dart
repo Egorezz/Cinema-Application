@@ -13,24 +13,19 @@ class ButtonsDemo extends StatelessWidget {
       spacing: AppSpacing.s,
       runSpacing: AppSpacing.s,
       children: [
-        AppButton(label: UiKitStrings.primary, onPressed: () {}),
-        AppButton(
+        AppButton.primary(label: UiKitStrings.primary, onPressed: () {}),
+        AppButton.secondary(
           label: UiKitStrings.secondary,
-          variant: AppButtonVariant.secondary,
           icon: Icons.add,
           onPressed: () {},
         ),
-        AppButton(
-          label: UiKitStrings.text,
-          variant: AppButtonVariant.text,
-          onPressed: () {},
-        ),
-        AppButton(
+        AppButton.text(label: UiKitStrings.text, onPressed: () {}),
+        AppButton.primary(
           label: UiKitStrings.loading,
           isLoading: true,
           onPressed: () {},
         ),
-        const AppButton(label: UiKitStrings.disabled, onPressed: null),
+        const AppButton.primary(label: UiKitStrings.disabled, onPressed: null),
       ],
     );
   }

@@ -1,32 +1,47 @@
 import 'package:flutter/material.dart';
 
-enum AppButtonVariant { primary, secondary, text }
+enum _AppButtonVariant { primary, secondary, text }
 
-/// The app's button: [AppButtonVariant.primary] is a [FilledButton],
-/// [AppButtonVariant.secondary] an [OutlinedButton], [AppButtonVariant.text]
+/// The app's button: [AppButton.primary] is a [FilledButton],
+/// [AppButton.secondary] an [OutlinedButton], [AppButton.text]
 /// a [TextButton].
+///
+/// `onPressed: null` disables the button. `isLoading` shows a progress
+/// indicator instead of `icon` and disables the button. `expand` stretches
+/// the button to the available width.
 class AppButton extends StatelessWidget {
-  const AppButton({
+  const AppButton.primary({
     required this._label,
     required this._onPressed,
     super.key,
-    this._variant = AppButtonVariant.primary,
     this._icon,
     this._isLoading = false,
     this._expand = false,
-  });
+  }) : _variant = _AppButtonVariant.primary;
+
+  const AppButton.secondary({
+    required this._label,
+    required this._onPressed,
+    super.key,
+    this._icon,
+    this._isLoading = false,
+    this._expand = false,
+  }) : _variant = _AppButtonVariant.secondary;
+
+  const AppButton.text({
+    required this._label,
+    required this._onPressed,
+    super.key,
+    this._icon,
+    this._isLoading = false,
+    this._expand = false,
+  }) : _variant = _AppButtonVariant.text;
 
   final String _label;
-
-  /// `null` disables the button.
   final VoidCallback? _onPressed;
-  final AppButtonVariant _variant;
+  final _AppButtonVariant _variant;
   final IconData? _icon;
-
-  /// Shows a progress indicator instead of `icon` and disables the button.
   final bool _isLoading;
-
-  /// Stretches the button to the available width.
   final bool _expand;
 
   static const double _indicatorSize = 16;
@@ -46,29 +61,29 @@ class AppButton extends StatelessWidget {
     // Framework .icon constructors lay out icon + label safely under both
     // bounded and unbounded width (AppBar actions, Row, dialog actions).
     final button = switch ((_variant, leading)) {
-      (AppButtonVariant.primary, null) => FilledButton(
+      (_AppButtonVariant.primary, null) => FilledButton(
         onPressed: effectiveOnPressed,
         child: text,
       ),
-      (AppButtonVariant.primary, final Widget icon) => FilledButton.icon(
+      (_AppButtonVariant.primary, final Widget icon) => FilledButton.icon(
         onPressed: effectiveOnPressed,
         icon: icon,
         label: text,
       ),
-      (AppButtonVariant.secondary, null) => OutlinedButton(
+      (_AppButtonVariant.secondary, null) => OutlinedButton(
         onPressed: effectiveOnPressed,
         child: text,
       ),
-      (AppButtonVariant.secondary, final Widget icon) => OutlinedButton.icon(
+      (_AppButtonVariant.secondary, final Widget icon) => OutlinedButton.icon(
         onPressed: effectiveOnPressed,
         icon: icon,
         label: text,
       ),
-      (AppButtonVariant.text, null) => TextButton(
+      (_AppButtonVariant.text, null) => TextButton(
         onPressed: effectiveOnPressed,
         child: text,
       ),
-      (AppButtonVariant.text, final Widget icon) => TextButton.icon(
+      (_AppButtonVariant.text, final Widget icon) => TextButton.icon(
         onPressed: effectiveOnPressed,
         icon: icon,
         label: text,
