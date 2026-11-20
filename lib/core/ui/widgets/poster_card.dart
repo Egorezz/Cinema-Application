@@ -1,6 +1,6 @@
 import 'package:cinema_app/core/ui/theme/app_colors.dart';
 import 'package:cinema_app/core/ui/theme/app_spacing.dart';
-import 'package:cinema_app/core/ui/widgets/skeleton.dart';
+import 'package:cinema_app/core/ui/widgets/poster_image.dart';
 import 'package:flutter/material.dart';
 
 /// Poster (2:3) with the title below and an optional subtitle (e.g. year).
@@ -47,7 +47,7 @@ class PosterCard extends StatelessWidget {
                 aspectRatio: 2 / 3,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(AppSpacing.radiusM),
-                  child: _PosterImage(imageUrl: imageUrl),
+                  child: PosterImage(imageUrl: imageUrl),
                 ),
               ),
               SizedBox(
@@ -79,45 +79,6 @@ class PosterCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PosterImage extends StatelessWidget {
-  const _PosterImage({required this.imageUrl});
-
-  final String? imageUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    final imageUrl = this.imageUrl;
-    if (imageUrl == null) return const _PosterPlaceholder();
-    return Image.network(
-      imageUrl,
-      fit: BoxFit.cover,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return const Skeleton(borderRadius: 0);
-      },
-      errorBuilder: (context, error, stackTrace) => const _PosterPlaceholder(),
-    );
-  }
-}
-
-class _PosterPlaceholder extends StatelessWidget {
-  const _PosterPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: const Key('poster_placeholder'),
-      color: AppColors.skeleton,
-      alignment: Alignment.center,
-      child: const Icon(
-        Icons.movie_outlined,
-        size: 40,
-        color: AppColors.textSecondary,
       ),
     );
   }
