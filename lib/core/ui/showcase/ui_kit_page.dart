@@ -1,6 +1,7 @@
 import 'package:cinema_app/core/l10n/ui_kit_strings.dart';
 import 'package:cinema_app/core/ui/theme/app_spacing.dart';
 import 'package:cinema_app/core/ui/widgets/app_button.dart';
+import 'package:cinema_app/core/ui/widgets/app_header.dart';
 import 'package:cinema_app/core/ui/widgets/content_container.dart';
 import 'package:cinema_app/core/ui/widgets/error_view.dart';
 import 'package:cinema_app/core/ui/widgets/poster_card.dart';
@@ -14,24 +15,43 @@ class UiKitPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: const Key('ui_kit_page'),
-      appBar: AppBar(title: const Text(UiKitStrings.title)),
-      body: const SingleChildScrollView(
+    return const Scaffold(
+      key: Key('ui_kit_page'),
+      body: CustomScrollView(
         key: Key('ui_kit_scroll'),
-        padding: EdgeInsets.symmetric(vertical: AppSpacing.l),
-        child: ContentContainer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _Section(title: UiKitStrings.buttons, child: _ButtonsDemo()),
-              _Section(title: UiKitStrings.inputs, child: _InputsDemo()),
-              _Section(title: UiKitStrings.posters, child: _PostersDemo()),
-              _Section(title: UiKitStrings.skeletons, child: _SkeletonsDemo()),
-              _Section(title: UiKitStrings.errors, child: _ErrorDemo()),
-            ],
+        slivers: [
+          AppSliverHeader(title: Text(UiKitStrings.title)),
+          SliverPadding(
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.l),
+            sliver: SliverToBoxAdapter(
+              child: ContentContainer(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _Section(
+                      title: UiKitStrings.header,
+                      child: Text(UiKitStrings.headerHint),
+                    ),
+                    _Section(
+                      title: UiKitStrings.buttons,
+                      child: _ButtonsDemo(),
+                    ),
+                    _Section(title: UiKitStrings.inputs, child: _InputsDemo()),
+                    _Section(
+                      title: UiKitStrings.posters,
+                      child: _PostersDemo(),
+                    ),
+                    _Section(
+                      title: UiKitStrings.skeletons,
+                      child: _SkeletonsDemo(),
+                    ),
+                    _Section(title: UiKitStrings.errors, child: _ErrorDemo()),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

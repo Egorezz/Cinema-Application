@@ -1,6 +1,7 @@
 /// User-facing UI strings (Russian).
 abstract final class AppStrings {
-  static const appTitle = 'Онлайн-кинотеатр';
+  static const brandName = 'ДУБЛЬ';
+  static const appTitle = 'Дубль — онлайн-кинотеатр';
   static const aboutLink = 'О приложении';
   static const aboutTitle = 'О приложении';
   static const toHome = 'На главную';

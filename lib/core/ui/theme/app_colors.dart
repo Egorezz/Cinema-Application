@@ -12,4 +12,7 @@ abstract final class AppColors {
   static const border = Color(0xFFD5D4DC);
   static const error = Color(0xFFB3261E);
   static const skeleton = Color(0xFFE3E3E8);
+  static const header = Color(0xFF121214);
+  static const onHeader = Color(0xFFFFFFFF);
+  static const accent = Color(0xFFE53935);
 }

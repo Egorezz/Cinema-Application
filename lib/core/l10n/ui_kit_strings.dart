@@ -2,6 +2,10 @@
 abstract final class UiKitStrings {
   static const title = 'UI-kit';
 
+  static const header = 'Шапка';
+  static const headerHint =
+      'Без действий шапка уезжает при прокрутке вниз и возвращается при '
+      'прокрутке вверх; с действиями — закреплена.';
   static const buttons = 'Кнопки';
   static const inputs = 'Поля ввода';
   static const posters = 'Постеры';

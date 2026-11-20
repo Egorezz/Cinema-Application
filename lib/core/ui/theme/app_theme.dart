@@ -1,6 +1,7 @@
 import 'package:cinema_app/core/ui/theme/app_colors.dart';
 import 'package:cinema_app/core/ui/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// The only theme of the app (light). There is no dark theme.
 abstract final class AppTheme {
@@ -17,6 +18,7 @@ abstract final class AppTheme {
       onSurfaceVariant: AppColors.textSecondary,
       outline: AppColors.border,
     );
+    final textTheme = _textTheme();
     const buttonShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusS)),
     );
@@ -31,7 +33,23 @@ abstract final class AppTheme {
       brightness: Brightness.light,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.background,
-      textTheme: _textTheme(),
+      textTheme: textTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.header,
+        foregroundColor: AppColors.onHeader,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 2,
+        shadowColor: Colors.black,
+        centerTitle: false,
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: AppColors.onHeader,
+        ),
+        iconTheme: const IconThemeData(color: AppColors.onHeader),
+        actionsIconTheme: const IconThemeData(color: AppColors.onHeader),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: buttonMinSize,

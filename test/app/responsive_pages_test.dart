@@ -2,6 +2,7 @@ import 'package:cinema_app/app/app.dart';
 import 'package:cinema_app/app/router.dart';
 import 'package:cinema_app/core/router/app_routes.dart';
 import 'package:cinema_app/core/ui/widgets/app_button.dart';
+import 'package:cinema_app/core/ui/widgets/app_header.dart';
 import 'package:cinema_app/core/ui/widgets/error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +19,14 @@ void main() {
     await tester.pumpWidget(CinemaApp(key: ValueKey(location), router: router));
     await tester.pumpAndSettle();
   }
+
+  testWidgets('TC21: home and about show the app header', (tester) async {
+    await pumpAt(tester, AppRoutes.home, const Size(800, 600));
+    expect(find.byType(AppSliverHeader), findsOneWidget);
+
+    await pumpAt(tester, AppRoutes.about, const Size(800, 600));
+    expect(find.byType(AppSliverHeader), findsOneWidget);
+  });
 
   for (final size in const [Size(360, 800), Size(1920, 1080)]) {
     final label = '${size.width.toInt()}x${size.height.toInt()}';
