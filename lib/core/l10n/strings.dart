@@ -1,0 +1,8 @@
+/// User-facing UI strings (Russian).
+abstract final class AppStrings {
+  static const appTitle = 'Онлайн-кинотеатр';
+  static const aboutLink = 'О приложении';
+  static const aboutTitle = 'О приложении';
+  static const toHome = 'На главную';
+  static const notFoundTitle = 'Страница не найдена';
+}
