@@ -1,5 +1,4 @@
-import 'package:cinema_app/core/ui/widgets/poster_card_skeleton.dart';
-import 'package:cinema_app/core/ui/widgets/responsive_grid.dart';
+import 'package:cinema_app/core/ui/widgets/widgets.dart';
 import 'package:flutter/widgets.dart';
 
 /// Grid of [PosterCardSkeleton]s.

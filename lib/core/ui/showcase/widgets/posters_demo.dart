@@ -1,6 +1,5 @@
 import 'package:cinema_app/core/l10n/ui_kit_strings.dart';
-import 'package:cinema_app/core/ui/widgets/poster_card.dart';
-import 'package:cinema_app/core/ui/widgets/responsive_grid.dart';
+import 'package:cinema_app/core/ui/widgets/widgets.dart';
 import 'package:flutter/widgets.dart';
 
 /// [PosterCard] grid: long title, broken image and placeholders.

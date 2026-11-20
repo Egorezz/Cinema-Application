@@ -92,20 +92,14 @@ void main() {
       ),
     ];
     for (final (plain, withIcon, type) in cases) {
+      final ofType = find.byWidgetPredicate((w) => w.runtimeType == type);
+
       await pumpButton(tester, plain);
-      expect(find.byWidgetPredicate((w) => w.runtimeType == type), findsOne);
+      expect(ofType, findsOne);
 
       await pumpButton(tester, withIcon);
+      expect(ofType, findsOne);
       expect(find.byIcon(Icons.add), findsOneWidget);
-      expect(find.byWidgetPredicate((w) => w is ButtonStyleButton), findsOne);
-      expect(
-        tester.widget(find.byWidgetPredicate((w) => w is ButtonStyleButton)),
-        isA<ButtonStyleButton>().having(
-          (b) => b.runtimeType.toString(),
-          'type',
-          startsWith('$type'),
-        ),
-      );
     }
   });
 }

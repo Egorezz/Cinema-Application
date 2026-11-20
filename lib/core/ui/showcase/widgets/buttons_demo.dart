@@ -1,6 +1,6 @@
 import 'package:cinema_app/core/l10n/ui_kit_strings.dart';
 import 'package:cinema_app/core/ui/theme/app_spacing.dart';
-import 'package:cinema_app/core/ui/widgets/app_button.dart';
+import 'package:cinema_app/core/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
 /// Every [AppButton] variant and state.

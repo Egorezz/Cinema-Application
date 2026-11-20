@@ -1,5 +1,5 @@
 import 'package:cinema_app/core/l10n/ui_kit_strings.dart';
-import 'package:cinema_app/core/ui/widgets/error_view.dart';
+import 'package:cinema_app/core/ui/widgets/widgets.dart';
 import 'package:flutter/widgets.dart';
 
 /// [ErrorView] with a retry button in a fixed-height box.
