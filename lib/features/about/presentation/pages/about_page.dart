@@ -1,8 +1,6 @@
 import 'package:cinema_app/core/l10n/strings.dart';
 import 'package:cinema_app/core/router/app_routes.dart';
-import 'package:cinema_app/core/ui/widgets/app_button.dart';
-import 'package:cinema_app/core/ui/widgets/app_header.dart';
-import 'package:cinema_app/core/ui/widgets/content_container.dart';
+import 'package:cinema_app/core/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,9 +26,8 @@ class AboutPage extends StatelessWidget {
                       style: Theme.of(context).textTheme.headlineMedium,
                       textAlign: TextAlign.center,
                     ),
-                    AppButton(
+                    AppButton.text(
                       label: AppStrings.toHome,
-                      variant: AppButtonVariant.text,
                       onPressed: () => context.go(AppRoutes.home),
                     ),
                   ],

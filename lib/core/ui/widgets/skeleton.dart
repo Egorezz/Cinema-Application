@@ -1,6 +1,5 @@
 import 'package:cinema_app/core/ui/theme/app_colors.dart';
 import 'package:cinema_app/core/ui/theme/app_spacing.dart';
-import 'package:cinema_app/core/ui/widgets/poster_card.dart';
 import 'package:flutter/widgets.dart';
 
 /// Pulsing placeholder box shown while content is loading.
@@ -8,14 +7,14 @@ import 'package:flutter/widgets.dart';
 class Skeleton extends StatefulWidget {
   const Skeleton({
     super.key,
-    this.width,
-    this.height,
-    this.borderRadius = AppSpacing.radiusS,
+    this._width,
+    this._height,
+    this._borderRadius = AppSpacing.radiusS,
   });
 
-  final double? width;
-  final double? height;
-  final double borderRadius;
+  final double? _width;
+  final double? _height;
+  final double _borderRadius;
 
   @override
   State<Skeleton> createState() => _SkeletonState();
@@ -55,52 +54,13 @@ class _SkeletonState extends State<Skeleton>
     return FadeTransition(
       opacity: _opacity,
       child: Container(
-        width: widget.width,
-        height: widget.height,
+        width: widget._width,
+        height: widget._height,
         decoration: BoxDecoration(
           color: AppColors.skeleton,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
+          borderRadius: BorderRadius.circular(widget._borderRadius),
         ),
       ),
-    );
-  }
-}
-
-/// Loading placeholder with the same geometry as `PosterCard`:
-/// a 2:3 poster box and two text bars.
-class PosterCardSkeleton extends StatelessWidget {
-  const PosterCardSkeleton({super.key});
-
-  static const double _titleBarHeight = 14;
-  static const double _subtitleBarHeight = 12;
-  static const double _subtitleWidthFactor = 0.6;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const AspectRatio(
-          aspectRatio: 2 / 3,
-          child: Skeleton(borderRadius: AppSpacing.radiusM),
-        ),
-        SizedBox(
-          height: PosterCard.textAreaHeightOf(context),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: AppSpacing.s),
-              Skeleton(height: _titleBarHeight),
-              SizedBox(height: AppSpacing.xs),
-              FractionallySizedBox(
-                widthFactor: _subtitleWidthFactor,
-                child: Skeleton(height: _subtitleBarHeight),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

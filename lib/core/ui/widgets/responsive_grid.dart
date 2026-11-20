@@ -10,17 +10,17 @@ import 'package:flutter/widgets.dart';
 /// `ContentContainer` and side panels.
 class ResponsiveGrid extends StatelessWidget {
   const ResponsiveGrid({
-    required this.itemCount,
-    required this.itemBuilder,
+    required this._itemCount,
+    required this._itemBuilder,
     super.key,
-    this.shrinkWrap = false,
-    this.physics,
+    this._shrinkWrap = false,
+    this._physics,
   });
 
-  final int itemCount;
-  final IndexedWidgetBuilder itemBuilder;
-  final bool shrinkWrap;
-  final ScrollPhysics? physics;
+  final int _itemCount;
+  final IndexedWidgetBuilder _itemBuilder;
+  final bool _shrinkWrap;
+  final ScrollPhysics? _physics;
 
   static int columnsFor(ScreenSize size) => switch (size) {
     ScreenSize.mobile => 2,
@@ -50,11 +50,11 @@ class ResponsiveGrid extends StatelessWidget {
           (constraints.maxWidth - spacing * (columns - 1)) / columns,
         );
         return GridView.builder(
-          shrinkWrap: shrinkWrap,
-          physics: physics,
+          shrinkWrap: _shrinkWrap,
+          physics: _physics,
           padding: EdgeInsets.zero,
-          itemCount: itemCount,
-          itemBuilder: itemBuilder,
+          itemCount: _itemCount,
+          itemBuilder: _itemBuilder,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
             mainAxisSpacing: spacing,

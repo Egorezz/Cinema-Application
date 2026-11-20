@@ -16,19 +16,25 @@ void main() {
   ) async {
     var taps = 0;
 
-    await pumpButton(tester, AppButton(label: 'Go', onPressed: () => taps++));
+    await pumpButton(
+      tester,
+      AppButton.primary(label: 'Go', onPressed: () => taps++),
+    );
     await tester.tap(find.text('Go'));
     expect(taps, 1);
 
     await pumpButton(
       tester,
-      AppButton(label: 'Go', isLoading: true, onPressed: () => taps++),
+      AppButton.primary(label: 'Go', isLoading: true, onPressed: () => taps++),
     );
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     await tester.tap(find.text('Go'), warnIfMissed: false);
     expect(taps, 1);
 
-    await pumpButton(tester, const AppButton(label: 'Go', onPressed: null));
+    await pumpButton(
+      tester,
+      const AppButton.primary(label: 'Go', onPressed: null),
+    );
     final inner = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(inner.onPressed, isNull);
   });
@@ -41,12 +47,20 @@ void main() {
         home: Scaffold(
           appBar: AppBar(
             actions: [
-              AppButton(label: 'Добавить', icon: Icons.add, onPressed: () {}),
+              AppButton.primary(
+                label: 'Добавить',
+                icon: Icons.add,
+                onPressed: () {},
+              ),
             ],
           ),
           body: Row(
             children: [
-              AppButton(label: 'Сохранить', isLoading: true, onPressed: () {}),
+              AppButton.primary(
+                label: 'Сохранить',
+                isLoading: true,
+                onPressed: () {},
+              ),
             ],
           ),
         ),
@@ -55,5 +69,37 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Добавить'), findsOneWidget);
+  });
+
+  testWidgets('TC17: named constructors render the matching Material button', (
+    tester,
+  ) async {
+    final cases = <(AppButton, AppButton, Type)>[
+      (
+        AppButton.primary(label: 'Go', onPressed: () {}),
+        AppButton.primary(label: 'Go', icon: Icons.add, onPressed: () {}),
+        FilledButton,
+      ),
+      (
+        AppButton.secondary(label: 'Go', onPressed: () {}),
+        AppButton.secondary(label: 'Go', icon: Icons.add, onPressed: () {}),
+        OutlinedButton,
+      ),
+      (
+        AppButton.text(label: 'Go', onPressed: () {}),
+        AppButton.text(label: 'Go', icon: Icons.add, onPressed: () {}),
+        TextButton,
+      ),
+    ];
+    for (final (plain, withIcon, type) in cases) {
+      final ofType = find.byWidgetPredicate((w) => w.runtimeType == type);
+
+      await pumpButton(tester, plain);
+      expect(ofType, findsOne);
+
+      await pumpButton(tester, withIcon);
+      expect(ofType, findsOne);
+      expect(find.byIcon(Icons.add), findsOneWidget);
+    }
   });
 }

@@ -8,22 +8,21 @@ import 'package:flutter/material.dart';
 /// Error screen: icon, title, message and an optional retry button.
 class ErrorView extends StatelessWidget {
   const ErrorView({
-    required this.message,
+    required this._message,
     super.key,
-    this.title = AppStrings.errorTitle,
-    this.onRetry,
-    this.retryLabel = AppStrings.retry,
+    this._title = AppStrings.errorTitle,
+    this._onRetry,
+    this._retryLabel = AppStrings.retry,
   });
 
-  final String message;
-  final String title;
-  final VoidCallback? onRetry;
-  final String retryLabel;
+  final String _message;
+  final String _title;
+  final VoidCallback? _onRetry;
+  final String _retryLabel;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final onRetry = this.onRetry;
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
         child: ConstrainedBox(
@@ -44,21 +43,24 @@ class ErrorView extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.m),
                     Text(
-                      title,
+                      _title,
                       style: textTheme.titleMedium,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.s),
                     Text(
-                      message,
+                      _message,
                       style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    if (onRetry != null) ...[
+                    if (_onRetry != null) ...[
                       const SizedBox(height: AppSpacing.l),
-                      AppButton(label: retryLabel, onPressed: onRetry),
+                      AppButton.primary(
+                        label: _retryLabel,
+                        onPressed: _onRetry,
+                      ),
                     ],
                   ],
                 ),
