@@ -9,4 +9,15 @@ void main() {
 
     expect(find.byKey(const Key('home_page')), findsOneWidget);
   });
+
+  testWidgets('TC14: CinemaApp wires a light theme and no dark theme', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const CinemaApp());
+
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.theme, isNotNull);
+    expect(app.theme?.brightness, Brightness.light);
+    expect(app.darkTheme, isNull);
+  });
 }
