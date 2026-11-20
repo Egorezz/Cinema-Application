@@ -86,11 +86,19 @@ Config is baked in at compile time via `--dart-define-from-file` and read only i
 
 The backend runs locally in Docker via the Supabase CLI (pinned in `package.json`).
 
-**Prerequisites:** Docker Desktop running (Windows: WSL 2 backend), Node 18+. Run `npm install` once in the repo root.
+**Prerequisites:** Docker Desktop running (Windows: WSL 2 backend), Node 18+, Flutter SDK.
 
-**First start:** `npx supabase start`. The first run pulls several GB of images and can take much longer than 10 minutes on a slow network; later starts take about a minute.
+**First-time setup** (from the repo root):
 
-**Keys into the app:** run `npx supabase status -o env`, then in `env/dev.json` (copy of `env/example.json`) set `SUPABASE_URL` to `API_URL` and `SUPABASE_ANON_KEY` to `ANON_KEY`. Then `flutter run -d chrome --dart-define-from-file=env/dev.json`.
+1. Install the pinned Supabase CLI: `npm ci` (installs exactly what `package-lock.json` pins and never rewrites it).
+2. Start the stack: `npx supabase start`. The first run pulls several GB of images and can take much longer than 10 minutes on a slow network; later starts take about a minute.
+3. Create the dev config from the template (the file is gitignored, so a fresh clone has only `env/example.json`):
+   ```bash
+   cp env/example.json env/dev.json                # bash / macOS / Linux
+   Copy-Item env\example.json env\dev.json         # Windows PowerShell
+   ```
+4. Print the local values: `npx supabase status -o env`. Open `env/dev.json` (never edit `env/example.json` — it is the committed template) and set `SUPABASE_URL` to the `API_URL` value and `SUPABASE_ANON_KEY` to the `ANON_KEY` value.
+5. Run the app: `flutter pub get`, then `flutter run -d chrome --dart-define-from-file=env/dev.json`.
 
 | Service | URL |
 |---|---|
