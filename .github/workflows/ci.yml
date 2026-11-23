@@ -61,7 +61,7 @@ jobs:
         run: |
           if [ -f supabase/config.toml ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
 
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v3
         if: steps.detect.outputs.present == 'true'
         with:
           version: 3.2.0
