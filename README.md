@@ -116,6 +116,11 @@ npx supabase test db               # pgTAP tests from supabase/tests/
 npx supabase migration new <name>  # new migration
 ```
 
+**Seed data** (`supabase/seed.sql`, applied by `db reset`):
+- 3 published movies + 1 draft movie, 2 series (2 seasons x 3 episodes each), all with open video sources.
+- Dev logins (local only): `admin@cinema.local` / `admin12345` (admin), `user@cinema.local` / `user12345` (regular user). Never run `supabase db push --include-seed` against the cloud project.
+- Sources are third-party demo hosts (Mux, Unified Streaming, Shaka, MDN) that send CORS headers; the full playback/CORS check is card 6.14.
+
 **Rules:** the schema changes only through migrations (`supabase/migrations/`), never through Studio.
 
 **Troubleshooting:**
