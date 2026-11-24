@@ -1,5 +1,5 @@
 begin;
-select plan(37);
+select plan(39);
 
 -- TC1: table shape
 select has_table('public', 'titles', 'TC1: public.titles exists');
@@ -126,7 +126,11 @@ select ok(
   (select relrowsecurity from pg_class where oid = 'public.titles'::regclass),
   'TC7: RLS is enabled on public.titles'
 );
-select policies_are('public', 'titles', array['titles_select_published'], 'TC7: only titles_select_published policy exists');
+select policies_are(
+  'public', 'titles',
+  array['titles_select_published_or_admin', 'titles_insert_admin', 'titles_update_admin', 'titles_delete_admin'],
+  'TC7: titles has the published-or-admin select policy and admin-only write policies'
+);
 
 insert into public.titles (type, title, is_published) values
   ('movie', 'RLS published', true),
@@ -150,15 +154,23 @@ select is(
 );
 reset role;
 
--- TC10: clients cannot write titles (no write policies until is_admin() in 1.4/1.9)
+-- TC10: non-admin clients cannot write titles (anon has no write grants; authenticated is filtered by admin-only policies)
 set local role anon;
 select throws_ok(
   $$insert into public.titles (type, title) values ('movie', 'RLS anon insert')$$,
   '42501', null,
-  'TC10: anon insert is rejected by RLS'
+  'TC10: anon insert is rejected'
 );
-update public.titles set title = 'RLS anon hacked' where title = 'RLS published';
-delete from public.titles where title = 'RLS published';
+select throws_ok(
+  $$update public.titles set title = 'RLS anon hacked' where title = 'RLS published'$$,
+  '42501', null,
+  'TC10: anon update of titles is denied'
+);
+select throws_ok(
+  $$delete from public.titles where title = 'RLS published'$$,
+  '42501', null,
+  'TC10: anon delete of titles is denied'
+);
 reset role;
 select is(
   (select count(*)::int from public.titles where title = 'RLS published'),

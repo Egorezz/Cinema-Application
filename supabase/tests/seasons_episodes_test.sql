@@ -1,5 +1,5 @@
 begin;
-select plan(62);
+select plan(66);
 
 -- TC1: table shape
 select has_table('public', 'seasons', 'TC1: public.seasons exists');
@@ -182,7 +182,7 @@ select ok(
   'TC7: episodes.updated_at is refreshed on update'
 );
 
--- TC8: RLS enabled, only select policies
+-- TC8: RLS enabled, published-or-admin select + admin-only write policies
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.seasons'::regclass),
   'TC8: RLS is enabled on public.seasons'
@@ -191,8 +191,16 @@ select ok(
   (select relrowsecurity from pg_class where oid = 'public.episodes'::regclass),
   'TC8: RLS is enabled on public.episodes'
 );
-select policies_are('public', 'seasons', array['seasons_select_published'], 'TC8: only seasons_select_published policy exists');
-select policies_are('public', 'episodes', array['episodes_select_published'], 'TC8: only episodes_select_published policy exists');
+select policies_are(
+  'public', 'seasons',
+  array['seasons_select_published_or_admin', 'seasons_insert_admin', 'seasons_update_admin', 'seasons_delete_admin'],
+  'TC8: seasons has the published-or-admin select policy and admin-only write policies'
+);
+select policies_are(
+  'public', 'episodes',
+  array['episodes_select_published_or_admin', 'episodes_insert_admin', 'episodes_update_admin', 'episodes_delete_admin'],
+  'TC8: episodes has the published-or-admin select policy and admin-only write policies'
+);
 
 -- TC9: visibility follows the parent title's is_published
 insert into public.titles (type, title, tmdb_id, is_published) values
@@ -232,24 +240,40 @@ select is(
 );
 reset role;
 
--- TC10: clients cannot write seasons/episodes (no write policies until is_admin() in 1.4/1.9)
+-- TC10: non-admin clients cannot write seasons/episodes (anon has no write grants; authenticated is filtered by admin-only policies)
 set local role anon;
 select throws_ok(
   $$insert into public.seasons (title_id, season_number, name)
     select id, 5, 'RLS anon season' from public.titles where type = 'series' and tmdb_id = 900000201$$,
   '42501', null,
-  'TC10: anon insert into seasons is rejected by RLS'
+  'TC10: anon insert into seasons is rejected'
 );
 select throws_ok(
   $$insert into public.episodes (season_id, episode_number, name)
     select id, 5, 'RLS anon episode' from public.seasons where name = 'RLS s published'$$,
   '42501', null,
-  'TC10: anon insert into episodes is rejected by RLS'
+  'TC10: anon insert into episodes is rejected'
 );
-update public.seasons set name = 'RLS anon hacked' where name = 'RLS s published';
-update public.episodes set name = 'RLS anon hacked' where name = 'RLS ep published';
-delete from public.episodes where name = 'RLS ep published';
-delete from public.seasons where name = 'RLS s published';
+select throws_ok(
+  $$update public.seasons set name = 'RLS anon hacked' where name = 'RLS s published'$$,
+  '42501', null,
+  'TC10: anon update of seasons is denied'
+);
+select throws_ok(
+  $$update public.episodes set name = 'RLS anon hacked' where name = 'RLS ep published'$$,
+  '42501', null,
+  'TC10: anon update of episodes is denied'
+);
+select throws_ok(
+  $$delete from public.episodes where name = 'RLS ep published'$$,
+  '42501', null,
+  'TC10: anon delete of episodes is denied'
+);
+select throws_ok(
+  $$delete from public.seasons where name = 'RLS s published'$$,
+  '42501', null,
+  'TC10: anon delete of seasons is denied'
+);
 reset role;
 select is(
   (select count(*)::int from public.seasons where name = 'RLS s published'),
