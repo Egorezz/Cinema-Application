@@ -114,10 +114,10 @@ select is(
   5,
   'TC5: anon sees the 5 published seed titles'
 );
-select is(
-  (select count(*)::int from public.video_sources),
-  0,
-  'TC5: anon sees no video_sources'
+select throws_ok(
+  $$select count(*) from public.video_sources$$,
+  '42501', null,
+  'TC5: anon cannot select video_sources (no privilege)'
 );
 
 select * from finish();

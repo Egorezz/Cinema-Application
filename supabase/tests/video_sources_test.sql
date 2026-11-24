@@ -173,10 +173,10 @@ insert into public.video_sources (episode_id, url, format)
   select id, 'https://rls.test/episode', 'hls' from public.episodes where name = 'VS e1';
 
 set local role anon;
-select is(
-  (select count(*)::int from public.video_sources),
-  0,
-  'TC9: anon sees no sources'
+select throws_ok(
+  $$select count(*) from public.video_sources$$,
+  '42501', null,
+  'TC9: anon cannot select sources (no privilege)'
 );
 reset role;
 
