@@ -1,5 +1,5 @@
 begin;
-select plan(39);
+select plan(42);
 
 -- TC1: table shape
 select has_table('public', 'titles', 'TC1: public.titles exists');
@@ -7,13 +7,13 @@ select columns_are(
   'public', 'titles',
   array[
     'id', 'tmdb_id', 'tvmaze_id', 'type', 'title', 'original_title', 'overview',
-    'poster_path', 'backdrop_path', 'year', 'genres', 'rating', 'status',
+    'poster_path', 'backdrop_path', 'year', 'genre_ids', 'rating', 'status',
     'is_published', 'created_at', 'updated_at'
   ],
   'TC1: titles has exactly the 16 card columns'
 );
 select col_type_is('public', 'titles', 'id', 'bigint', 'TC1: id is bigint');
-select col_type_is('public', 'titles', 'genres', 'text[]', 'TC1: genres is text[]');
+select col_type_is('public', 'titles', 'genre_ids', 'integer[]', 'TC1: genre_ids is integer[]');
 select col_type_is('public', 'titles', 'rating', 'numeric(3,1)', 'TC1: rating is numeric(3,1)');
 select col_type_is('public', 'titles', 'year', 'smallint', 'TC1: year is smallint');
 select col_type_is('public', 'titles', 'created_at', 'timestamp with time zone', 'TC1: created_at is timestamptz');
@@ -98,9 +98,9 @@ select is(
   'TC5: is_published defaults to false'
 );
 select is(
-  (select genres from public.titles where title = 'TC5 defaults'),
-  '{}'::text[],
-  'TC5: genres defaults to an empty array'
+  (select genre_ids from public.titles where title = 'TC5 defaults'),
+  '{}'::integer[],
+  'TC5: genre_ids defaults to an empty array'
 );
 select ok(
   (select created_at is not null and updated_at is not null
@@ -111,6 +111,19 @@ select ok(
   (select id is not null from public.titles where title = 'TC5 defaults'),
   'TC5: id is generated'
 );
+
+-- TC11: genre_ids must reference genres; GIN index for containment filters
+select throws_ok(
+  $$insert into public.titles (type, title, genre_ids) values ('movie', 'TC11 unknown genre', '{16,999999}')$$,
+  '23503', null,
+  'TC11: insert with an unknown genre id is rejected'
+);
+select throws_ok(
+  $$update public.titles set genre_ids = '{999999}' where title = 'TC5 defaults'$$,
+  '23503', null,
+  'TC11: update to an unknown genre id is rejected'
+);
+select index_is_type('public', 'titles', 'titles_genre_ids_idx', 'gin', 'TC11: titles_genre_ids_idx is a GIN index');
 
 -- TC6: updated_at trigger
 select has_trigger('public', 'titles', 'titles_set_updated_at', 'TC6: titles_set_updated_at trigger exists');
