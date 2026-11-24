@@ -74,7 +74,11 @@ select results_eq(
 reset role;
 set local role anon;
 set local request.jwt.claims = '{"role":"anon"}';
-select is((select count(*)::int from public.profiles), 0, 'TC4: anon sees no profiles');
+select throws_ok(
+  $$select count(*) from public.profiles$$,
+  '42501', null,
+  'TC4: anon cannot select profiles (no privilege)'
+);
 reset role;
 
 -- TC5: privilege errors (column/table grants), not RLS

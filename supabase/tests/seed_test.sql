@@ -1,5 +1,5 @@
 begin;
-select plan(14);
+select plan(15);
 
 -- Every check is scoped to the seed fixtures, so the suite stays green after local
 -- imports / edits. Seed titles: movies by tmdb_id, draft and series by title.
@@ -22,6 +22,11 @@ select is(
       and not exists (select 1 from public.video_sources v where v.title_id = t.id and v.is_active)),
   0,
   'TC1: every published seed movie has an active source'
+);
+select is(
+  (select genre_ids from seed_titles where tmdb_id = 10378 and type = 'movie'),
+  array[16, 35],
+  'TC1: Big Buck Bunny has TMDB genre ids Animation and Comedy'
 );
 select is(
   (select count(*)::int from seed_titles where type = 'movie' and not is_published),
@@ -114,10 +119,10 @@ select is(
   5,
   'TC5: anon sees the 5 published seed titles'
 );
-select is(
-  (select count(*)::int from public.video_sources),
-  0,
-  'TC5: anon sees no video_sources'
+select throws_ok(
+  $$select count(*) from public.video_sources$$,
+  '42501', null,
+  'TC5: anon cannot select video_sources (no privilege)'
 );
 
 select * from finish();

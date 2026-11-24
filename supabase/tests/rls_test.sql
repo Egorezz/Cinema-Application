@@ -1,5 +1,5 @@
 begin;
-select plan(35);
+select plan(36);
 
 -- TC1: RLS is enabled on every table in schema public (a future table without RLS fails here)
 select is(
@@ -192,7 +192,8 @@ select is(
 select table_privs_are('public', 'titles', 'anon', array['SELECT'], 'TC5: anon has only SELECT on titles');
 select table_privs_are('public', 'seasons', 'anon', array['SELECT'], 'TC5: anon has only SELECT on seasons');
 select table_privs_are('public', 'episodes', 'anon', array['SELECT'], 'TC5: anon has only SELECT on episodes');
-select table_privs_are('public', 'video_sources', 'anon', array['SELECT'], 'TC5: anon has only SELECT on video_sources');
+select table_privs_are('public', 'video_sources', 'anon', array[]::text[], 'TC5: anon has no privileges on video_sources');
+select table_privs_are('public', 'profiles', 'anon', array[]::text[], 'TC5: anon has no privileges on profiles');
 select table_privs_are(
   'public', 'titles', 'authenticated', array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
   'TC5: authenticated has only SELECT/INSERT/UPDATE/DELETE on titles'
@@ -216,12 +217,15 @@ select is(
      from unnest(array['anon', 'authenticated']) r(role),
           unnest(array[
             'public.seasons_check_series_title()',
+            'public.set_updated_at()',
+            'public.genres_check_not_in_use()',
+            'public.titles_check_genre_ids()',
             'public.titles_check_type_change()',
             'public.video_sources_check_movie_title()'
           ]) f(fn)
     where has_function_privilege(r.role, f.fn, 'execute')),
   null,
-  'TC6: anon and authenticated cannot execute the catalog trigger functions'
+  'TC6: anon and authenticated cannot execute the trigger functions'
 );
 
 -- TC9: guard — no security definer function in public is client-callable unless allow-listed.

@@ -173,10 +173,10 @@ insert into public.video_sources (episode_id, url, format)
   select id, 'https://rls.test/episode', 'hls' from public.episodes where name = 'VS e1';
 
 set local role anon;
-select is(
-  (select count(*)::int from public.video_sources),
-  0,
-  'TC9: anon sees no sources'
+select throws_ok(
+  $$select count(*) from public.video_sources$$,
+  '42501', null,
+  'TC9: anon cannot select sources (no privilege)'
 );
 reset role;
 
@@ -195,7 +195,7 @@ select throws_ok(
   $$insert into public.video_sources (title_id, url, format)
     select id, 'https://rls.test/anon', 'mp4' from public.titles where tmdb_id = 900000401$$,
   '42501', null,
-  'TC10: anon insert into video_sources is rejected by RLS'
+  'TC10: anon insert into video_sources is rejected (no privilege)'
 );
 reset role;
 
