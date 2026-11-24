@@ -150,14 +150,18 @@ select ok(
   'TC8: video_sources.updated_at is refreshed on update'
 );
 
--- TC9: RLS — authenticated sees only active sources of published titles, anon sees nothing
+-- TC9: RLS — non-admin authenticated sees only active sources of published titles, anon sees nothing
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.video_sources'::regclass),
   'TC9: RLS is enabled on public.video_sources'
 );
 select policies_are(
-  'public', 'video_sources', array['video_sources_select_published'],
-  'TC9: only video_sources_select_published policy exists'
+  'public', 'video_sources',
+  array[
+    'video_sources_select_published_or_admin', 'video_sources_insert_admin',
+    'video_sources_update_admin', 'video_sources_delete_admin'
+  ],
+  'TC9: video_sources has the published-or-admin select policy and admin-only write policies'
 );
 insert into public.video_sources (title_id, url, format, is_active)
   select id, 'https://rls.test/movie', 'mp4', true from public.titles where tmdb_id = 900000401
@@ -185,7 +189,7 @@ select is(
 );
 reset role;
 
--- TC10: clients cannot write video_sources (no write policies until is_admin() in 1.4/1.9)
+-- TC10: non-admin clients cannot write video_sources (anon has no write grants; authenticated is filtered by admin-only policies)
 set local role anon;
 select throws_ok(
   $$insert into public.video_sources (title_id, url, format)
