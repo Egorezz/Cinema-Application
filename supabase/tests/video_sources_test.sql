@@ -195,7 +195,7 @@ select throws_ok(
   $$insert into public.video_sources (title_id, url, format)
     select id, 'https://rls.test/anon', 'mp4' from public.titles where tmdb_id = 900000401$$,
   '42501', null,
-  'TC10: anon insert into video_sources is rejected by RLS'
+  'TC10: anon insert into video_sources is rejected (no privilege)'
 );
 reset role;
 

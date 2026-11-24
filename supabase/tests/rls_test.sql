@@ -218,6 +218,7 @@ select is(
           unnest(array[
             'public.seasons_check_series_title()',
             'public.set_updated_at()',
+            'public.genres_check_not_in_use()',
             'public.titles_check_genre_ids()',
             'public.titles_check_type_change()',
             'public.video_sources_check_movie_title()'
