@@ -218,8 +218,6 @@ select is(
           unnest(array[
             'public.seasons_check_series_title()',
             'public.set_updated_at()',
-            'public.genres_check_not_in_use()',
-            'public.titles_check_genre_ids()',
             'public.titles_check_type_change()',
             'public.video_sources_check_movie_title()'
           ]) f(fn)
@@ -244,7 +242,8 @@ select is(
       and (p.oid, r.role) not in (
         ('public.is_admin()'::regprocedure::oid, 'anon'),
         ('public.is_admin()'::regprocedure::oid, 'authenticated'),
-        ('public.register_push_subscription(text,text,text,text)'::regprocedure::oid, 'authenticated')
+        ('public.register_push_subscription(text,text,text,text)'::regprocedure::oid, 'authenticated'),
+        ('public.set_title_genres(bigint,integer[])'::regprocedure::oid, 'authenticated')
       )),
   null,
   'TC9: security definer functions in public are not executable by anon/authenticated unless allow-listed'

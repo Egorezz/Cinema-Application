@@ -50,8 +50,10 @@ reset role;
 select table_privs_are('public', 'genres', 'anon', array['SELECT'], 'TC4: anon has only SELECT on genres');
 select table_privs_are('public', 'genres', 'authenticated', array['SELECT'], 'TC4: authenticated has only SELECT on genres');
 
--- TC5: a genre id used by a title cannot be deleted or renumbered (service-role / migration path)
-insert into public.titles (type, title, genre_ids) values ('movie', 'TC5 genre in use', '{10770}');
+-- TC5: a genre id used by a title cannot be deleted or renumbered (FK from title_genres, service-role / migration path)
+insert into public.titles (type, title) values ('movie', 'TC5 genre in use');
+insert into public.title_genres (title_id, genre_id)
+select id, 10770 from public.titles where title = 'TC5 genre in use';
 select throws_ok(
   $$delete from public.genres where id = 10770$$,
   '23503', null,
