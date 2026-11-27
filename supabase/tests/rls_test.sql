@@ -246,6 +246,7 @@ select is(
   (select array_agg(r.role || ':' || f.fn order by r.role, f.fn)
      from unnest(array['anon', 'authenticated']) r(role),
           unnest(array[
+            'public.handle_new_user()',
             'public.seasons_check_series_title()',
             'public.set_updated_at()',
             'public.titles_check_type_change()',

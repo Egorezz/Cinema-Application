@@ -1,5 +1,5 @@
 begin;
-select plan(28);
+select plan(34);
 
 -- Fixtures: A (metadata display_name), B (email only), admin (role set by SQL as postgres)
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -41,6 +41,60 @@ select results_eq(
      order by id$$,
   $$values ('John Doe'::text), (repeat('x', 49))$$,
   'TC2: OAuth full_name is used (trimmed); a name cut at 50 chars has no trailing space'
+);
+
+-- TC10–TC13: avatar_url from OAuth metadata (avatar_url, else picture); invalid values never break signup
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000001a1', 'g@test.local',
+   '{"full_name":"G User","avatar_url":"https://lh3.googleusercontent.com/a/1","picture":"https://lh3.googleusercontent.com/a/1"}'),
+  ('00000000-0000-0000-0000-0000000001a2', 'p@test.local', '{"name":"P","picture":"https://p.test/pic.jpg"}'),
+  ('00000000-0000-0000-0000-0000000001a3', 'both@test.local',
+   '{"avatar_url":"https://a.test/1.png","picture":"https://p.test/2.png"}'),
+  ('00000000-0000-0000-0000-0000000001a4', 'pad@test.local', '{"avatar_url":"  https://a.test/x.png  "}'),
+  ('00000000-0000-0000-0000-0000000001a5', 'js@test.local', '{"avatar_url":"javascript:alert(1)"}'),
+  ('00000000-0000-0000-0000-0000000001a6', 'ftp@test.local', '{"avatar_url":"ftp://x"}'),
+  ('00000000-0000-0000-0000-0000000001a7', 'blank@test.local', '{"avatar_url":"   "}'),
+  ('00000000-0000-0000-0000-0000000001a8', 'num@test.local', '{"avatar_url":123}'),
+  ('00000000-0000-0000-0000-0000000001a9', 'obj@test.local', '{"avatar_url":{"x":1}}'),
+  ('00000000-0000-0000-0000-0000000001aa', 'mix@test.local',
+   '{"avatar_url":"ftp://x","picture":"https://p.test/ok.png"}');
+
+select results_eq(
+  $$select avatar_url, display_name from public.profiles where id = '00000000-0000-0000-0000-0000000001a1'$$,
+  $$values ('https://lh3.googleusercontent.com/a/1'::text, 'G User'::text)$$,
+  'TC10: Google-like metadata fills avatar_url and display_name from full_name'
+);
+
+select is(
+  (select avatar_url from public.profiles where id = '00000000-0000-0000-0000-0000000001a2'),
+  'https://p.test/pic.jpg',
+  'TC11: only picture -> avatar_url = picture'
+);
+select is(
+  (select avatar_url from public.profiles where id = '00000000-0000-0000-0000-0000000001a3'),
+  'https://a.test/1.png',
+  'TC11: avatar_url wins over picture'
+);
+select is(
+  (select avatar_url from public.profiles where id = '00000000-0000-0000-0000-0000000001a4'),
+  'https://a.test/x.png',
+  'TC11: padded avatar_url is trimmed'
+);
+
+select results_eq(
+  $$select avatar_url is null, display_name is not null from public.profiles
+     where id in ('00000000-0000-0000-0000-0000000001a5', '00000000-0000-0000-0000-0000000001a6',
+                  '00000000-0000-0000-0000-0000000001a7', '00000000-0000-0000-0000-0000000001a8',
+                  '00000000-0000-0000-0000-0000000001a9')
+     order by id$$,
+  $$values (true, true), (true, true), (true, true), (true, true), (true, true)$$,
+  'TC12: invalid avatar values -> profile created with null avatar_url and a display_name'
+);
+
+select is(
+  (select avatar_url is null from public.profiles where id = '00000000-0000-0000-0000-0000000001aa'),
+  true,
+  'TC13: invalid avatar_url + valid picture -> profile exists, avatar_url null (first candidate decides)'
 );
 
 -- TC3: is_admin()
