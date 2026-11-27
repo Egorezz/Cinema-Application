@@ -44,15 +44,15 @@ insert into seed_sources values
   ('FLOWER', 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', 'mp4', '720p');
 
 -- Movies
-insert into public.titles (tmdb_id, type, title, original_title, overview, year, genre_ids, rating, status, is_published) values
+insert into public.titles (tmdb_id, type, title, original_title, overview, year, rating, status, is_published) values
   (10378, 'movie', 'Большой кролик', 'Big Buck Bunny',
-   'Огромный добродушный кролик отвечает на выходки трёх грызунов-хулиганов.', 2008, '{16,35}', 6.8, 'released', true),
+   'Огромный добродушный кролик отвечает на выходки трёх грызунов-хулиганов.', 2008, 6.8, 'released', true),
   (45745, 'movie', 'Синтел', 'Sintel',
-   'Девушка отправляется на поиски своего дракона через опасные земли.', 2010, '{14,16}', 7.4, 'released', true),
+   'Девушка отправляется на поиски своего дракона через опасные земли.', 2010, 7.4, 'released', true),
   (133701, 'movie', 'Слёзы стали', 'Tears of Steel',
-   'Группа учёных и бойцов пытается спасти мир от роботов в Амстердаме будущего.', 2012, '{878}', 6.5, 'released', true);
-insert into public.titles (type, title, overview, year, genre_ids, status, is_published) values
-  ('movie', 'Черновик: тестовый поток', 'Неопубликованный черновик для проверки скрытия.', 2024, '{}', 'released', false);
+   'Группа учёных и бойцов пытается спасти мир от роботов в Амстердаме будущего.', 2012, 6.5, 'released', true);
+insert into public.titles (type, title, overview, year, status, is_published) values
+  ('movie', 'Черновик: тестовый поток', 'Неопубликованный черновик для проверки скрытия.', 2024, 'released', false);
 
 insert into public.video_sources (title_id, url, format, quality, language, priority, is_active)
 select t.id, s.url, s.format, s.quality, 'en', m.priority, true
@@ -68,9 +68,23 @@ join public.titles t on t.type = m.type
 join seed_sources s on s.code = m.code;
 
 -- Series
-insert into public.titles (type, title, overview, year, genre_ids, status, is_published) values
-  ('series', 'Тестовые потоки', 'Подборка технических демонстрационных потоков.', 2024, '{}', 'returning', true),
-  ('series', 'Открытые фильмы Blender', 'Короткометражки с открытой лицензией от Blender Foundation.', 2008, '{16}', 'ended', true);
+insert into public.titles (type, title, overview, year, status, is_published) values
+  ('series', 'Тестовые потоки', 'Подборка технических демонстрационных потоков.', 2024, 'returning', true),
+  ('series', 'Открытые фильмы Blender', 'Короткометражки с открытой лицензией от Blender Foundation.', 2008, 'ended', true);
+
+-- Genres (TMDB ids, see public.genres).
+insert into public.title_genres (title_id, genre_id)
+select t.id, m.genre_id
+from (values
+  ('movie',  10378,  null,                       16),
+  ('movie',  10378,  null,                       35),
+  ('movie',  45745,  null,                       14),
+  ('movie',  45745,  null,                       16),
+  ('movie',  133701, null,                       878),
+  ('series', null,   'Открытые фильмы Blender',  16)
+) as m(type, tmdb_id, ttl, genre_id)
+join public.titles t on t.type = m.type
+  and (t.tmdb_id = m.tmdb_id or (m.tmdb_id is null and t.title = m.ttl));
 
 insert into public.seasons (title_id, season_number, name)
 select t.id, n, 'Сезон ' || n

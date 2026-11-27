@@ -1,5 +1,5 @@
 begin;
-select plan(15);
+select plan(16);
 
 -- Every check is scoped to the seed fixtures, so the suite stays green after local
 -- imports / edits. Seed titles: movies by tmdb_id, draft and series by title.
@@ -24,9 +24,18 @@ select is(
   'TC1: every published seed movie has an active source'
 );
 select is(
-  (select genre_ids from seed_titles where tmdb_id = 10378 and type = 'movie'),
+  (select array_agg(tg.genre_id order by tg.genre_id) from public.title_genres tg
+     join seed_titles t on t.id = tg.title_id
+    where t.tmdb_id = 10378 and t.type = 'movie'),
   array[16, 35],
-  'TC1: Big Buck Bunny has TMDB genre ids Animation and Comedy'
+  'TC1: Big Buck Bunny has TMDB genre ids Animation and Comedy via title_genres'
+);
+select is(
+  (select count(*)::int from public.title_genres tg
+     join seed_titles t on t.id = tg.title_id
+    where t.type = 'series' and t.title = 'Тестовые потоки'),
+  0,
+  'TC1: the «Тестовые потоки» series has no genres'
 );
 select is(
   (select count(*)::int from seed_titles where type = 'movie' and not is_published),
