@@ -103,20 +103,20 @@ select ok(public.is_admin(), 'TC4: admin seed user is_admin()');
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-5eed00000002","role":"authenticated"}';
 select ok(not public.is_admin(), 'TC4: regular seed user is not admin');
 
--- TC5: visibility for a regular user (draft checked by title_id: its url is shared with an episode)
+-- TC5: playable sources for a regular user via get_video_sources (no direct video_sources reads)
 select is(
-  (select count(*)::int from public.video_sources v
-    join seed_titles t on t.id = v.title_id
+  (select count(*)::int from seed_titles t
+    cross join lateral public.get_video_sources(p_title_id => t.id) g
    where t.type = 'movie' and t.is_published),
   4,
-  'TC5: user sees the active sources of the 3 published seed movies'
+  'TC5: user gets the active sources of the 3 published seed movies'
 );
 select is(
-  (select count(*)::int from public.video_sources v
-    join seed_titles t on t.id = v.title_id
-   where not t.is_published),
+  (select count(*)::int from seed_titles t
+    cross join lateral public.get_video_sources(p_title_id => t.id) g
+   where t.type = 'movie' and not t.is_published),
   0,
-  'TC5: user does not see the draft movie sources'
+  'TC5: user gets no sources of the draft movie'
 );
 
 reset role;
