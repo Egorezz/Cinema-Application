@@ -1,5 +1,5 @@
 begin;
-select plan(36);
+select plan(42);
 
 -- TC1: RLS is enabled on every table in schema public (a future table without RLS fails here)
 select is(
@@ -34,6 +34,10 @@ insert into public.video_sources (episode_id, url, format)
   select id, 'https://rls9.test/draft', 'hls' from public.episodes where name = 'RLS9 e1';
 insert into public.video_sources (title_id, url, format, is_active)
   select id, 'https://rls9.test/inactive', 'mp4', false from public.titles where type = 'movie' and tmdb_id = 900000902;
+-- Ids captured as postgres: clients cannot filter video_sources by url (no SELECT on url).
+create temporary table rls_vs_ids as
+  select id from public.video_sources where url like 'https://rls9.test/%';
+grant select on rls_vs_ids to authenticated;
 
 -- TC2: admin sees drafts and inactive sources; a non-admin user sees none of them
 set local role authenticated;
@@ -54,9 +58,14 @@ select is(
   'TC2: admin sees the episode of a draft title'
 );
 select is(
-  (select count(*)::int from public.video_sources where url like 'https://rls9.test/%'),
-  2,
-  'TC2: admin sees the draft and the inactive source'
+  (select array_agg(url) from public.admin_get_video_sources((select id from public.titles where tmdb_id = 900000901))),
+  array['https://rls9.test/draft'],
+  'TC2: admin reads the source of a draft series via admin_get_video_sources'
+);
+select is(
+  (select array_agg(url || ':' || is_active) from public.admin_get_video_sources((select id from public.titles where tmdb_id = 900000902))),
+  array['https://rls9.test/inactive:false'],
+  'TC2: admin reads the inactive movie source via admin_get_video_sources'
 );
 
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000c9b","role":"authenticated"}';
@@ -66,7 +75,7 @@ select is(
   'TC2: non-admin user does not see the draft title'
 );
 select is(
-  (select count(*)::int from public.video_sources where url like 'https://rls9.test/%'),
+  (select count(*)::int from public.video_sources where id in (select id from rls_vs_ids)),
   0,
   'TC2: non-admin user sees neither the draft nor the inactive source'
 );
@@ -113,18 +122,31 @@ select is(
   1,
   'TC3: admin updates an episode'
 );
-update public.video_sources set is_active = false where url = 'https://rls9.test/admin';
+-- Admin edits a source by id (url is write-only for clients); results are checked as postgres.
+update public.video_sources set url = 'https://rls9.test/admin2', is_active = false
+ where id = (select v.id from public.video_sources v
+               join public.episodes e on e.id = v.episode_id
+              where e.name = 'RLS9 admin e1 edited');
+reset role;
 select is(
-  (select is_active from public.video_sources where url = 'https://rls9.test/admin'),
-  false,
-  'TC3: admin deactivates a video source'
+  (select url || ':' || is_active from public.video_sources v
+     join public.episodes e on e.id = v.episode_id
+    where e.name = 'RLS9 admin e1 edited'),
+  'https://rls9.test/admin2:false',
+  'TC3: admin changes the url of a video source and deactivates it'
 );
-delete from public.video_sources where url = 'https://rls9.test/admin';
+set local role authenticated;
+delete from public.video_sources
+ where id = (select v.id from public.video_sources v
+               join public.episodes e on e.id = v.episode_id
+              where e.name = 'RLS9 admin e1 edited');
+reset role;
 select is(
-  (select count(*)::int from public.video_sources where url = 'https://rls9.test/admin'),
+  (select count(*)::int from public.video_sources where url like 'https://rls9.test/admin%'),
   0,
   'TC3: admin deletes a video source'
 );
+set local role authenticated;
 delete from public.episodes where name = 'RLS9 admin e1 edited';
 select is(
   (select count(*)::int from public.episodes where name = 'RLS9 admin e1 edited'),
@@ -207,8 +229,16 @@ select table_privs_are(
   'TC5: authenticated has only SELECT/INSERT/UPDATE/DELETE on episodes'
 );
 select table_privs_are(
-  'public', 'video_sources', 'authenticated', array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
-  'TC5: authenticated has only SELECT/INSERT/UPDATE/DELETE on video_sources'
+  'public', 'video_sources', 'authenticated', array['INSERT', 'UPDATE', 'DELETE'],
+  'TC5: authenticated has only INSERT/UPDATE/DELETE on video_sources (SELECT is per column)'
+);
+select column_privs_are(
+  'public', 'video_sources', 'url', 'authenticated', array['INSERT', 'UPDATE'],
+  'TC5: authenticated cannot SELECT video_sources.url'
+);
+select column_privs_are(
+  'public', 'video_sources', 'id', 'authenticated', array['SELECT', 'INSERT', 'UPDATE'],
+  'TC5: authenticated can SELECT video_sources.id'
 );
 
 -- TC6: trigger functions are not callable by clients
@@ -243,11 +273,38 @@ select is(
         ('public.is_admin()'::regprocedure::oid, 'anon'),
         ('public.is_admin()'::regprocedure::oid, 'authenticated'),
         ('public.register_push_subscription(text,text,text,text)'::regprocedure::oid, 'authenticated'),
-        ('public.set_title_genres(bigint,integer[])'::regprocedure::oid, 'authenticated')
+        ('public.set_title_genres(bigint,integer[])'::regprocedure::oid, 'authenticated'),
+        ('public.get_video_sources(bigint,bigint)'::regprocedure::oid, 'authenticated'),
+        ('public.admin_get_video_sources(bigint)'::regprocedure::oid, 'authenticated')
       )),
   null,
   'TC9: security definer functions in public are not executable by anon/authenticated unless allow-listed'
 );
+
+-- TC10: admin cannot read video_sources.url from the table either (reads go through admin_get_video_sources)
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000c9a","role":"authenticated"}';
+select throws_ok(
+  $$select url from public.video_sources$$,
+  '42501', null,
+  'TC10: admin select of video_sources.url is rejected (no column privilege)'
+);
+select throws_ok(
+  $$insert into public.video_sources (title_id, url, format)
+    select id, 'https://rls9.test/returning', 'mp4' from public.titles where type = 'movie' and tmdb_id = 900000902
+    returning url$$,
+  '42501', null,
+  'TC10: admin insert returning url is rejected (no column privilege)'
+);
+
+-- TC11: a non-admin user cannot call admin_get_video_sources
+set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-000000000c9b","role":"authenticated"}';
+select throws_ok(
+  $$select * from public.admin_get_video_sources((select id from public.titles where type = 'movie' and tmdb_id = 900000902))$$,
+  '42501', null,
+  'TC11: non-admin admin_get_video_sources is rejected'
+);
+reset role;
 
 select * from finish();
 rollback;
