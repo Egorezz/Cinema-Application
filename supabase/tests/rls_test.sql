@@ -249,7 +249,8 @@ select is(
             'public.seasons_check_series_title()',
             'public.set_updated_at()',
             'public.titles_check_type_change()',
-            'public.video_sources_check_movie_title()'
+            'public.video_sources_check_movie_title()',
+            'public.watch_progress_check_finished()'
           ]) f(fn)
     where has_function_privilege(r.role, f.fn, 'execute')),
   null,
